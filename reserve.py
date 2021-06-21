@@ -34,6 +34,7 @@ parser.add_argument('--ekz_watcher_url', type=str, help='EKZ-Watcher-URL', requi
 parser.add_argument('--ekz_watcher_pw', type=str, help='EKZ-Watcher password', required=True)
 parser.add_argument('--keyword', action="append", type=str, help='Keywords (can be used multiple times)')
 parser.add_argument('--typos', action="store_true", help='Search for typos')
+parser.add_argument('--sleep_random', action="store_true", help='Sleep for a random time after searching')
 
 args = parser.parse_args()
 
@@ -178,3 +179,6 @@ while True:
         if args.typos:
             search(get_typo_string(item))
             go_through_search_results()
+        if args.sleep_random:
+            sleeptime = randrange(30)
+            time.sleep(sleeptime)
