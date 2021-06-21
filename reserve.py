@@ -4,6 +4,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException        
+from selenium.webdriver.common.keys import Keys
 
 import time
 import os
@@ -70,11 +71,26 @@ def login ():
     submit.click()
 
 def search (term):
+    driver.find_element_by_id('site-search-query').send_keys(Keys.CONTROL + "a")
+    driver.find_element_by_id('site-search-query').send_keys(Keys.DELETE)
     search_field = get_element((By.ID, "site-search-query"))
     submit = get_element((By.ID, "site-search-submit"))
     search_field.send_keys(term)
     submit.click()
 
+def go_through_search_results ():
+    elements = driver.find_elements_by_class_name('aditem')
+    for element in elements:
+        href = element.get_attribute('data-href')
+        adid = element.get_attribute('data-adid')
+        print(href)
+
+def goto_startpage():
+    driver.get("https://ebay-kleinanzeigen.de")
+
 accept_cookies()
 login()
+search("runkelrübenverbot")
 search("computer")
+go_through_search_results()
+goto_startpage();
