@@ -114,6 +114,11 @@ def go_to_and_write_to_anzeige (href, adid):
 
     add_to_ekz_watcher(adid, href, reservierung_id)
 
+    title = get_element((By.ID, "viewad-title"))
+    ad_title = title.text;
+    speech = "Ich habe " + ad_title + " reserviert"
+    speak(speech)
+
 def goto_startpage():
     driver.get("https://ebay-kleinanzeigen.de")
 
