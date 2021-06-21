@@ -1,4 +1,6 @@
 <?php
+// chmod -R 775 .
+// chown www-data:www-data
 
 	if (!empty($argv[1])) {
 		parse_str($argv[1], $_GET);
@@ -37,7 +39,7 @@
 			if(file_exists($listings)) {
 				$handle = fopen($listings, "r");
 				if ($handle) {
-					print "<table><tr><th>Anzeige-ID</th><th>Link</th><th>Datum</th><th>Reservierungs-ID</th></tr>";
+					print "<table><tr><th>Anzeige-ID</th><th>Link</th><th>Datum</th><th>Reservierungs-ID</th></tr>\n";
 					while (($line = fgets($handle)) !== false) {
 						// process the line read.
 						$data_in_line = explode(";", $line);
@@ -46,11 +48,11 @@
 						$date = $data_in_line[2];
 						$reservierung_id = $data_in_line[3];
 
-						print "<tr><td>$anzeige_id</td><td><a href='https://ebay-kleinanzeigen.de/$link'>$link</a></td><td>$date</td><td>$reservierung_id</td></tr>";
+						print "<tr><td>$anzeige_id</td><td><a href='https://ebay-kleinanzeigen.de/$link'>$link</a></td><td>$date</td><td>$reservierung_id</td></tr>\n";
 					}
 
 					fclose($handle);
-					print "</table>";
+					print "</table>\n";
 				} else {
 					die("ERROR opening $listings");
 				}

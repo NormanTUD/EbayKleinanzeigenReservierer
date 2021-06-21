@@ -5,7 +5,10 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException        
 from selenium.webdriver.common.keys import Keys
+import urllib.request
+import re
 
+import sys
 import time
 import os
 from pprint import pprint
@@ -24,6 +27,8 @@ parser = argparse.ArgumentParser(description='Auto-reserve eBay Kleinanzeigen')
 
 parser.add_argument('--username', type=str, help='Username')
 parser.add_argument('--password', type=str, help='Password')
+parser.add_argument('--ekz_watcher_url', type=str, help='EKZ-Watcher-URL')
+parser.add_argument('--ekz_watcher_pw', type=str, help='EKZ-Watcher password')
 
 args = parser.parse_args()
 
@@ -41,12 +46,6 @@ if os.name == 'nt':
 elif os.name == "posix":
     path = str(basepath) + "/chromedriver"
 
-login_url = "https://www.ebay-kleinanzeigen.de/m-einloggen.html?targetUrl=/";
-
-options = webdriver.ChromeOptions()
-options.add_argument('--disable-blink-features=AutomationControlled')
-driver = webdriver.Chrome(executable_path=path, options=options)
-driver.get(login_url)
 
 timeout = 30
 
@@ -98,9 +97,32 @@ def go_through_search_results ():
 def goto_startpage():
     driver.get("https://ebay-kleinanzeigen.de")
 
+def already_written_to (anzeige_id):
+    with urllib.request.urlopen('http://www.example.com/') as f:
+        html = f.read().decode('utf-8')
+        if re.match(r"^({anzeige_id});", html):
+            return 1
+    return 0
+
+def add_to_ekz_watcher (anzeige_id, link, reservierung_id):
+    url = args.ekz_watcher_url + "?pw=" + args.ekz_watcher_pw + "&anzeige_id=" + str(anzeige_id) + "&link=" + link + "&reservierung_id=" + str(reservierung_id)
+    return url
+
+print(already_written_to("123"));
+print(add_to_ekz_watcher(123, "asdf", 12345))
+
+sys.exit()
+
+
+login_url = "https://www.ebay-kleinanzeigen.de/m-einloggen.html?targetUrl=/";
+
+options = webdriver.ChromeOptions()
+options.add_argument('--disable-blink-features=AutomationControlled')
+driver = webdriver.Chrome(executable_path=path, options=options)
+driver.get(login_url)
+
 accept_cookies()
 login()
 search("runkelrübenverbot")
-search("computer")
 go_through_search_results()
 goto_startpage();
