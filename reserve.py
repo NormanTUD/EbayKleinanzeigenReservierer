@@ -33,6 +33,7 @@ parser.add_argument('--password', type=str, help='Password', required=True)
 parser.add_argument('--ekz_watcher_url', type=str, help='EKZ-Watcher-URL', required=True)
 parser.add_argument('--ekz_watcher_pw', type=str, help='EKZ-Watcher password', required=True)
 parser.add_argument('--keyword', action="append", type=str, help='Keywords (can be used multiple times)')
+parser.add_argument('--user_blacklist', action="append", type=str, help='User-Blacklist (ID or name)')
 parser.add_argument('--typos', action="store_true", help='Search for typos')
 parser.add_argument('--sleep_random', action="store_true", help='Sleep for a random time after searching')
 
@@ -101,23 +102,49 @@ def go_through_search_results ():
         if already_written_to(adid) == 0:
             go_to_and_write_to_anzeige(href, adid)
 
+def is_blacklisted_user ():
+    if args.user_blacklist is None or len(args.user_blacklist) == 0:
+        return 0
+    else:
+        links = driver.find_elements_by_tag_name("a")
+        user_id = None
+        user_name = None
+        for link in links:
+            xpath = "/html/body/div[1]/div[2]/div/section[1]/section/aside/div[2]/div/div/ul/li[1]/span/span[1]/a"
+            user_field = search_field = get_element((By.XPATH, xpath))
+            user_name = user_field.text
+            user_name = user_name.replace('\n', '').replace('\r', '')
+            link_href = user_field.get_attribute("href")
+            user_id = link_href.split("userId=",1)[1]
+            break
+        print("user_id: >" + user_id + "<")
+        print("user_name: >" + user_name + "<")
+        if user_id in args.user_blacklist or user_name in args.user_blacklist:
+            return 1
+        return 0
+
+
+
 def go_to_and_write_to_anzeige (href, adid):
     url = "https://ebay-kleinanzeigen.de/" + href
     driver.get(url)
-    reservierung_id = get_random_string(10)
+    if is_blacklisted_user() == 0:
+        reservierung_id = get_random_string(10)
 
-    reservierung_text = "Hallo, ich habe voraussichtlich Interesse an dem Artikel / den Artikeln. Daher möchte ich um eine Reservierung für 24 Stunden bitten. Sollte ich mich bis dahin nicht nochmals gemeldet haben, verfällt die Reservierung meinerseits automatisch. Da ich nicht allein darüber entscheiden kann, könnte es auch sein, dass sich mein Kollege meldet. Dieser gibt dann den folgenden Reservierungscode zur Verifikation durch:\n\nReservierungscode: " + reservierung_id + "\n\nVielen Dank"
+        reservierung_text = "Hallo, ich habe voraussichtlich Interesse an dem Artikel / den Artikeln. Daher möchte ich um eine Reservierung für 24 Stunden bitten. Sollte ich mich bis dahin nicht nochmals gemeldet haben, verfällt die Reservierung meinerseits automatisch. Da ich nicht allein darüber entscheiden kann, könnte es auch sein, dass sich mein Kollege meldet. Dieser gibt dann den folgenden Reservierungscode zur Verifikation durch:\n\nReservierungscode: " + reservierung_id + "\n\nVielen Dank"
 
-    contact_text = get_element((By.CLASS_NAME, "viewad-contact-message"))
-    contact_text.send_keys(reservierung_text)
-    contact_text.submit()
+        contact_text = get_element((By.CLASS_NAME, "viewad-contact-message"))
+        contact_text.send_keys(reservierung_text)
+        contact_text.submit()
 
-    add_to_ekz_watcher(adid, href, reservierung_id)
+        add_to_ekz_watcher(adid, href, reservierung_id)
 
-    title = get_element((By.ID, "viewad-title"))
-    ad_title = title.text;
-    speech = "Ich habe " + ad_title + " reserviert"
-    speak(speech)
+        title = get_element((By.ID, "viewad-title"))
+        ad_title = title.text;
+        speech = "Ich habe " + ad_title + " reserviert"
+        speak(speech)
+    else:
+        print("Was not written to because the user was blacklisted")
 
 def goto_startpage():
     driver.get("https://ebay-kleinanzeigen.de")
@@ -167,6 +194,7 @@ def get_typo_string(myStrError):
         myStrErrer = typo.StrErrer(myStrError).char_swap().missing_char()
 
     return str(myStrErrer)
+
 
 login_url = "https://www.ebay-kleinanzeigen.de/m-einloggen.html?targetUrl=/";
 
