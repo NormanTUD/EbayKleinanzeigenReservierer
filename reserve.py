@@ -8,6 +8,9 @@ from selenium.webdriver.common.keys import Keys
 import urllib.request
 import re
 
+import typo
+from random import randrange
+
 import sys
 import time
 import os
@@ -30,6 +33,7 @@ parser.add_argument('--password', type=str, help='Password', required=True)
 parser.add_argument('--ekz_watcher_url', type=str, help='EKZ-Watcher-URL', required=True)
 parser.add_argument('--ekz_watcher_pw', type=str, help='EKZ-Watcher password', required=True)
 parser.add_argument('--keyword', action="append", type=str, help='Keywords (can be used multiple times)')
+parser.add_argument('--typos', action="store_true", help='Search for typos')
 
 args = parser.parse_args()
 
@@ -125,10 +129,38 @@ def add_to_ekz_watcher (anzeige_id, link, reservierung_id):
     with urllib.request.urlopen(url) as f:
         html = f.read().decode('utf-8')
 
-#print(already_written_to("123"));
-#print(add_to_ekz_watcher(123, "asdf", 12345))
-#sys.exit()
+def get_typo_string(myStrError):
+    myrand = randrange(12)
+    myStrErrer = myStrError
 
+    if myrand == 0:
+        myStrErrer = typo.StrErrer(myStrError).char_swap()
+    elif myrand == 1:
+        myStrErrer = typo.StrErrer(myStrError).missing_char()
+    elif myrand == 2:
+        myStrErrer = typo.StrErrer(myStrError).missing_char()
+    elif myrand == 3:
+        myStrErrer = typo.StrErrer(myStrError).extra_char()
+    elif myrand == 4:
+        myStrErrer = typo.StrErrer(myStrError).nearby_char()
+    elif myrand == 5:
+        myStrErrer = typo.StrErrer(myStrError).similar_char()
+    elif myrand == 6:
+        myStrErrer = typo.StrErrer(myStrError).skipped_space()
+    elif myrand == 7:
+        myStrErrer = typo.StrErrer(myStrError).random_space()
+    elif myrand == 8:
+        myStrErrer = typo.StrErrer(myStrError).repeated_char()
+    elif myrand == 9:
+        myStrErrer = typo.StrErrer(myStrError).unichar()
+    elif myrand == 10:
+        myStrErrer = typo.StrErrer(myStrError).unichar().char_swap()
+    elif myrand == 11:
+        myStrErrer = typo.StrErrer(myStrError).char_swap().missing_char()
+    elif myrand == 12:
+        myStrErrer = typo.StrErrer(myStrError).char_swap().missing_char()
+
+    return str(myStrErrer)
 
 login_url = "https://www.ebay-kleinanzeigen.de/m-einloggen.html?targetUrl=/";
 
@@ -143,3 +175,6 @@ while True:
     for item in args.keyword:
         search(item)
         go_through_search_results()
+        if args.typos:
+            search(get_typo_string(item))
+            go_through_search_results()
