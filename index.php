@@ -25,15 +25,13 @@
 				$link = get_get("link");
 				$date = date("d.m.Y H:m:s");
 				$reservierung_id = get_get("reservierung_id");
-				$string = "$anzeige_id;$link;$date;$reservierung_id";
+				$string = "$anzeige_id;$link;$date;$reservierung_id\n";
 
-
-				$fileContents = "";
 				if(file_exists($listings)) {
-					$fileContents = file_get_contents($listings);
+					$string .= file_get_contents($listings);
 				}
 
-				file_put_contents($listings, $string, $fileContents);
+				file_put_contents($listings, $string);
 			}
 
 			if(file_exists($listings)) {

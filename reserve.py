@@ -16,6 +16,10 @@ from simplebeep import beep
 import argparse
 import pathlib
 
+import random
+import string
+
+
 parser = argparse.ArgumentParser(description='Auto-reserve eBay Kleinanzeigen')
 
 parser.add_argument('--username', type=str, help='Username')
@@ -45,6 +49,12 @@ driver = webdriver.Chrome(executable_path=path, options=options)
 driver.get(login_url)
 
 timeout = 30
+
+def get_random_string(length):
+    # choose from all lowercase letter
+    letters = string.ascii_lowercase
+    result_str = ''.join(random.choice(letters) for i in range(length))
+    return result_str
 
 def speak (text):
     os.system("pico2wave -l=de-DE -w=/tmp/notice.wav '" + text + "'; aplay /tmp/notice.wav; rm /tmp/notice.wav")
