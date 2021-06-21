@@ -25,10 +25,11 @@ import string
 
 parser = argparse.ArgumentParser(description='Auto-reserve eBay Kleinanzeigen')
 
-parser.add_argument('--username', type=str, help='Username')
-parser.add_argument('--password', type=str, help='Password')
-parser.add_argument('--ekz_watcher_url', type=str, help='EKZ-Watcher-URL')
-parser.add_argument('--ekz_watcher_pw', type=str, help='EKZ-Watcher password')
+parser.add_argument('--username', type=str, help='Username', required=True)
+parser.add_argument('--password', type=str, help='Password', required=True)
+parser.add_argument('--ekz_watcher_url', type=str, help='EKZ-Watcher-URL', required=True)
+parser.add_argument('--ekz_watcher_pw', type=str, help='EKZ-Watcher password', required=True)
+parser.add_argument('--keyword', action="append", type=str, help='Keywords (can be used multiple times)')
 
 args = parser.parse_args()
 
@@ -138,6 +139,8 @@ driver.get(login_url)
 
 accept_cookies()
 login()
-search("runkelrübenverbot")
-go_through_search_results()
-goto_startpage();
+while True:
+    for item in args.keyword:
+        search(item)
+        go_through_search_results()
+    goto_startpage();
