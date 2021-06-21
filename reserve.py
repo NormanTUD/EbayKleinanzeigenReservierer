@@ -143,4 +143,3 @@ while True:
     for item in args.keyword:
         search(item)
         go_through_search_results()
-    goto_startpage();
