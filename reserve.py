@@ -92,15 +92,17 @@ def go_through_search_results ():
     for element in elements:
         href = element.get_attribute('data-href')
         adid = element.get_attribute('data-adid')
-        print(href)
+        if already_written_to(adid) == 0:
+            print("WRITE TO " + adid);
 
 def goto_startpage():
     driver.get("https://ebay-kleinanzeigen.de")
 
 def already_written_to (anzeige_id):
-    with urllib.request.urlopen('http://www.example.com/') as f:
+    with urllib.request.urlopen(args.ekz_watcher_url + "?pw=" + args.ekz_watcher_pw) as f:
         html = f.read().decode('utf-8')
-        if re.match(r"^({anzeige_id});", html):
+        regex = "<tr><td>" + str(anzeige_id) + "</td>"
+        if regex in html:
             return 1
     return 0
 
@@ -108,10 +110,9 @@ def add_to_ekz_watcher (anzeige_id, link, reservierung_id):
     url = args.ekz_watcher_url + "?pw=" + args.ekz_watcher_pw + "&anzeige_id=" + str(anzeige_id) + "&link=" + link + "&reservierung_id=" + str(reservierung_id)
     return url
 
-print(already_written_to("123"));
-print(add_to_ekz_watcher(123, "asdf", 12345))
-
-sys.exit()
+#print(already_written_to("123"));
+#print(add_to_ekz_watcher(123, "asdf", 12345))
+#sys.exit()
 
 
 login_url = "https://www.ebay-kleinanzeigen.de/m-einloggen.html?targetUrl=/";
