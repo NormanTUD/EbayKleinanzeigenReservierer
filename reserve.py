@@ -93,7 +93,20 @@ def go_through_search_results ():
         href = element.get_attribute('data-href')
         adid = element.get_attribute('data-adid')
         if already_written_to(adid) == 0:
-            print("WRITE TO " + adid);
+            go_to_and_write_to_anzeige(href, adid)
+
+def go_to_and_write_to_anzeige (href, adid):
+    url = "https://ebay-kleinanzeigen.de/" + href
+    driver.get(url)
+    reservierung_id = get_random_string(10)
+
+    reservierung_text = "Hallo, ich habe voraussichtlich Interesse an dem Artikel / den Artikeln. Daher möchte ich um eine Reservierung für 24 Stunden bitten. Sollte ich mich bis dahin nicht nochmals gemeldet haben, verfällt die Reservierung meinerseits automatisch. Da ich nicht allein darüber entscheiden kann, könnte es auch sein, dass sich mein Kollege meldet. Dieser gibt dann den folgenden Reservierungscode zur Verifikation durch:\n\nReservierungscode: " + reservierung_id + "\n\nVielen Dank"
+
+    contact_text = get_element((By.CLASS_NAME, "viewad-contact-message"))
+    contact_text.send_keys(reservierung_text)
+    contact_text.submit()
+
+    add_to_ekz_watcher(adid, href, reservierung_id)
 
 def goto_startpage():
     driver.get("https://ebay-kleinanzeigen.de")
@@ -108,7 +121,8 @@ def already_written_to (anzeige_id):
 
 def add_to_ekz_watcher (anzeige_id, link, reservierung_id):
     url = args.ekz_watcher_url + "?pw=" + args.ekz_watcher_pw + "&anzeige_id=" + str(anzeige_id) + "&link=" + link + "&reservierung_id=" + str(reservierung_id)
-    return url
+    with urllib.request.urlopen(url) as f:
+        html = f.read().decode('utf-8')
 
 #print(already_written_to("123"));
 #print(add_to_ekz_watcher(123, "asdf", 12345))
